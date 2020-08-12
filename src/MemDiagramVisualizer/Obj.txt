@@ -1,0 +1,24 @@
+
+public class Driver {
+
+	public static void main(String[] args) {
+
+		Dog k = new Dog();
+		Cat garf = new Cat();
+		String str = "yes";
+		int y = 5;
+
+	}
+
+}
+
+public class Dog {
+	private int size = 100;
+	private String name = "Fido";
+	public static Cat chasing = new Cat();
+	
+	public static void main(String[] args) {
+
+	}
+
+}

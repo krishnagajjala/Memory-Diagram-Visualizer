@@ -1,0 +1,15 @@
+
+public class Driver {
+
+	public static void main(String[] args) {
+
+		int in = 1;
+		char ch = 'y';
+		byte by = 4;
+		double do = 4.2;
+		long lo = 3.3L;
+		float fl = 4F;
+
+	}
+
+}

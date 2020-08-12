@@ -1,0 +1,46 @@
+
+public class Driver {
+
+	public static void main(String[] args) {
+		Dog a, b, c;
+		a = new Dog();
+		b = new Dog();
+		c = new Dog();
+		int x = 1;
+		
+		a.name = "Fido";
+		b.name = "Spot";
+		c.name = "Steve";
+		
+		a.weight = 27.5;
+		b.weight = 123.77;
+		c.weight = 40.2;
+		
+		a.numCarsChased = 0;
+		b.numCarsChased = 1000;
+		c.numCarsChased = 12;
+		
+		a.bark();
+		b.chaseCar();
+
+	}
+
+}
+
+public class Dog {
+	
+	/* instance variables for the state */
+	public String name;
+	public double weight;
+	public int numCarsChased;
+	
+	/* instance methods for behaviors */
+	public void bark() {
+		System.out.println("Woof!");
+	}
+	
+	public void chaseCar() {
+		System.out.println("Dog is chasing car down the street!");
+	}
+	
+}
