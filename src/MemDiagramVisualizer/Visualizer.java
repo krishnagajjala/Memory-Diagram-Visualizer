@@ -1,62 +1,56 @@
 package MemDiagramVisualizer;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
-import com.sun.tools.javac.Main;
-
+import LinesAndObjects.Heap;
 import LinesAndObjects.Line;
 import LinesAndObjects.Obj;
+import LinesAndObjects.ObjList;
 import wordstream.WordStreamFromFile;
 
 @SuppressWarnings("serial")
 public class Visualizer extends JFrame{
 	// To do:
-	// Map for var, val pairs in sorted order, then remove pairs of a method when method ends, maybe create map for numVars in method
+	//make new methods new objs on ObjList stack, turn current stack Obj into main Obj
+	// Map for var, val pairs in sorted order, then remove pairs of a method when method ends, maybe create map for numVars in method, 
+	
 	// set of lines that have x1,y1,x2,y2 for each line, shift x1, y1, when adding and removing vars on stack
+	
 	// -add variable, add method button for stack
 	// -add array, add object buttons for heap
 	// -able to draw arrow from stack to heap
+	// add specific array object, specific String obj
 	
-	static DrawRect rec = new DrawRect(1000,960);
+	static ArrayList<String> code = new ArrayList<String>();
 	static JButton varBtn = new JButton("add Variable");
 	static DefaultListModel<String> textInput = new DefaultListModel<String>();
-	static DefaultListModel<String> textVar = new DefaultListModel<String>();
-	static JList<String> varLines = new JList<>(textVar);
-	static DefaultListModel<String> textVal = new DefaultListModel<String>();
-	static JList<String> valLines = new JList<>(textVal);
-	static int x1,x2,y1,y2, objCheck;
+	static JPanel visDisplay = new JPanel();
+	static int x1,x2,y1,y2, objCheck, currHList;
 	static LinkedList<Line> linesList = new LinkedList<Line>();
+	static Heap heap = new Heap();
+	static Obj stack = new Obj("Stack");
 	//static LinkedHashMap<String,String> varList = new LinkedHashMap<String, String>(); 		// need to change this to per method call(main as first method call)
 	//static LinkedHashMap<String,String>()[] variableList = new LinkedHashMap<>()[];			// cant use arrays for maps, bc the way generics work, type specificity isnt there so classexception error will occur
     
@@ -66,22 +60,32 @@ public class Visualizer extends JFrame{
 	
 	
 	// method visualizer
-	public static void methodVisualizer(String name, ArrayList<String> code) {
+	public static void methodVisualizer(String name) {
 		
 	}
 	
 	//obj or class visualizer
-	public static void objVisualizer(String name, ArrayList<String> code, int index) {
-		System.out.print(code.get(index));
+	public void objVisualizer(int index, Obj given) {
+		for(int i = index+1;!code.get(i).contains("{");i++) {
+			if (code.get(i).contains(" = ")) {
+				String objVar = code.get(i);
+				objVar=objVar.replace("private", "");
+				objVar=objVar.replace("public", "");
+				objVar=objVar.replace("static", "");
+				objVar=objVar.trim();
+				addVar(code.get(i), given);
+
+			}
+		}
 	}
 
-	public static void mainVisualizer(ArrayList<String> code, int index) {
+	public void mainVisualizer(int index) {
 		int openBrac = 1;
 		int closeBrac = 0;
 		for(int i = index;openBrac!=closeBrac;i++) {
 			
 			if (code.get(i).contains(" = ")) {
-				addVar(code.get(i));
+				addVar(code.get(i), stack);
 			}
 			
 			// add more component checks
@@ -102,47 +106,107 @@ public class Visualizer extends JFrame{
 			//visualizer display methods//
 	
 	
-	public static void addVar(String a) {
-		if (a.contains(" new ") || a.contains("String")) {
-			addObj(a);
-		} else {
-			addPrim(a);
+	public void addVar(String a, Obj given) {
+		a=a.replace("private", "");
+		a=a.replace("public", "");
+		a=a.replace("static", "");
+		a = a.trim();
+		
+		int nameStartIndex = a.indexOf(" ");
+		int nameEndIndex = a.indexOf("=");
+		String varName = a.substring(nameStartIndex+1, nameEndIndex);
+		varName.trim();
+		boolean newVar = true;
+		int oldIndex = -1;
+		for(int i = 0; i<given.objTextVar.getSize();i++) {
+			if (varName.equals(given.objTextVar.elementAt(i))) {
+				newVar = false;
+				oldIndex = i;
+			}
 		}
+		
+		if (newVar) {
+
+			if (a.contains(" new ") || a.contains("String")) {
+				addObj(a, varName, given);
+			} else {
+				addPrim(a, varName, given);
+			}
+			for(Line b: heap.mylist.get(heap.mylist.size()!=currHList?currHList:currHList-1).linesList) {				// move line start points down when adding var when new var
+				b.y1 += 15;
+			}
+		} else {
+			int valStartIndex = a.indexOf("=");
+			int valEndIndex = a.indexOf(";");
+			String valName = a.substring(valStartIndex+1, valEndIndex);
+			given.objTextVal.remove(oldIndex);
+			given.objTextVal.add(oldIndex, valName);
+			// change value of existing var	// change value of existing var// change value of existing var// change value of existing var// // change value of existing var// change value of existing var
+		}
+
 	}
 	
-	public static void addPrim(String name) {
-		name = name.trim();
-		int nameStartIndex = name.indexOf(" ");
-		int nameEndIndex = name.indexOf("=");
-		String varName = name.substring(nameStartIndex+1, nameEndIndex);
-		textVar.add(0, varName);
+	public static void addPrim(String name, String varName, Obj given) {
+		varName.trim();
+		given.objTextVar.add(0, varName);
 		int valStartIndex = name.indexOf("=");
 		int valEndIndex = name.indexOf(";");
 		String valName = name.substring(valStartIndex+1, valEndIndex);
-		//varList.put(varName, valName);
-		textVal.add(0, valName);
+		given.objTextVal.add(0, valName);
 	}
 	
-	public static void addObj(String name) {
+	public void addObj(String name, String varName, Obj given) {
+
+
 		name = name.trim();
 		int nameStartIndex = name.indexOf(" ");
-		int nameEndIndex = name.indexOf("=");
-		String varName = name.substring(nameStartIndex+1, nameEndIndex);
-		textVar.add(0, varName);
-		textVal.add(0, "************");
-		Point start = valLines.getLocationOnScreen();
-		x1= (int) start.getX()+97;
-		y1= (int) start.getY()+9+(3*17);
-//		Point end = rec.getLocation();
-//		x2=(int) end.getX();
-//		y2=(int) end.getY();
-//		x1=0;
-//		y1=0;
-		x2=800;
-		y2=800;
-		objCheck++;
-		linesList.add(new Line(x1,y1,x2,y2));  
+		String className = name.substring(0, nameStartIndex);
+		given.objTextVar.add(0, varName);
+		given.objTextVal.add(0, "************");
+		Obj currObj = new Obj(className+" "+varName);
+				
+		currHList++;
+		if (currHList > heap.mylist.size()) {
+			heap.addObjList(new ObjList());
+			heap.mylist.get(currHList -1).addObj(currObj);
+		} else {
+			heap.mylist.get(currHList -1).addObj(currObj);
+		}
+
+
+		this.pack();
+		currObj.loc=currObj.getLocationOnScreen();
 		
+		//arrow details
+		Point start = given.loc;
+		x1= (int) start.getX()+72;
+		y1= (int) start.getY()-9;
+		Point end = currObj.loc;
+
+		x2=(int) end.getX();
+		y2=(int) end.getY();
+		objCheck++;
+		for(Line a: heap.mylist.get(currHList -1).linesList) {		//shift line end points down when adding obj, heap.mylist.get(currHList -1).mylist.get(0)
+			if ((currHList -1)!=0) {
+				a.y2 += 200;
+				a.y1 += 200;
+			} else {
+				a.y2 += 200;
+			}
+		}
+		heap.mylist.get(currHList -1).linesList.add(new Line(x1,y1,x2,y2));
+		
+		//class info
+		
+		int classIndex = 0;
+		for (int i=0;i<textInput.getSize();i++){
+			if(textInput.get(i).contains("class "+className)) {
+				classIndex = i;
+			}
+		}
+		objVisualizer(classIndex,currObj);
+		currHList--;
+
 	}
 	
 	public static void addMethod() {
@@ -152,16 +216,16 @@ public class Visualizer extends JFrame{
 
 	
 	// Button controls/actions
-	static ActionListener actionListener = new ActionListener() {
-
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == varBtn) {
-				String test1= JOptionPane.showInputDialog("Please input mark for test 1: ");
-				addPrim(test1);
-			}
-
-		}
-	};
+//	static ActionListener actionListener = new ActionListener() {
+//
+//		public void actionPerformed(ActionEvent e) {
+//			if (e.getSource() == varBtn) {
+//				String test1= JOptionPane.showInputDialog("Please input mark for test 1: ");
+//				this.addVar(test1, stack);
+//			}
+//
+//		}
+//	};
 	
 	
 	
@@ -189,15 +253,15 @@ public class Visualizer extends JFrame{
 		//frame max size
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Dimension max = toolkit.getScreenSize();
-		frame.setMinimumSize(new Dimension(400,1000));
-		frame.setSize(max);
+		frame.setMinimumSize(new Dimension(max.width-1,max.height-1));
+		//frame.setSize(max);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
 		
 		//get code from file and print on left, put code in arrayList
 		WordStreamFromFile states = new WordStreamFromFile("C:\\Users\\KrishnaG\\eclipse-workspace\\MemDiagramVis\\src\\MemDiagramVisualizer\\Obj.txt");
-		ArrayList<String> code = new ArrayList<String>();
+		
 		int count = 0;
 		while(states.hasAnother()) {
 			code.add(states.getLine());
@@ -205,41 +269,28 @@ public class Visualizer extends JFrame{
 			count++;
 		}
 		
-		//vis display
-		JPanel visDisplay = new JPanel();
-		visDisplay.setLayout(new BorderLayout());
 		//stack display
-		JPanel stackDisplay = new JPanel();
-		stackDisplay.setLayout(new BorderLayout());
 		
+		visDisplay.setLayout(new BorderLayout(50,0));
+		visDisplay.add(stack, BorderLayout.WEST);
 		
-		JScrollPane stackL = new JScrollPane(varLines);
-		stackL.setPreferredSize(new Dimension(100, 900));
-		stackDisplay.add(stackL, BorderLayout.WEST);
-		
-		
-		JScrollPane stackR = new JScrollPane(valLines);
-		stackR.setPreferredSize(new Dimension(100, 900));
-		stackDisplay.add(stackR, BorderLayout.CENTER);
-		visDisplay.add(stackDisplay, BorderLayout.WEST);
-		
-		varLines.setCellRenderer(Obj.getRenderer());
-		valLines.setCellRenderer(Obj.getRenderer());
+		stack.objVars.setCellRenderer(Obj.getRenderer());
+		stack.objVals.setCellRenderer(Obj.getRenderer());
 		
 		
 		//heap display
 		
-		DrawRect recIn = new DrawRect(1000,1000);
-		visDisplay.add(rec, BorderLayout.CENTER); 
-		visDisplay.add(recIn, BorderLayout.CENTER); 
+
+
+		visDisplay.add(heap, BorderLayout.CENTER); 
 		
 		content.add(visDisplay,BorderLayout.CENTER);
 		frame.pack();
-		
+		stack.loc = stack.getLocationOnScreen();
 		//control display
 		JPanel controls = new JPanel();
 		
-		varBtn.addActionListener(actionListener);
+		//varBtn.addActionListener(actionListener);
 		JButton methodBtn = new JButton("add Method");
 		//methodBtn.addActionListener(actionListener);
 		controls.setLayout(new BorderLayout());
@@ -247,10 +298,30 @@ public class Visualizer extends JFrame{
 		controls.add(varBtn, BorderLayout.CENTER);
 		visDisplay.add(controls, BorderLayout.SOUTH);
 		
-		System.out.println(stackL.getLocationOnScreen());
 		//call visualizer for main of driver class - always first main in file as of now
 		int main = textInput.indexOf("	public static void main(String[] args) {");
-		mainVisualizer(code,main);
+		currHList = 0;
+		frame.mainVisualizer(main);
+		System.out.println(heap.mylist.get(0).mylist.get(0).getLocationOnScreen());
+		System.out.println(heap.mylist.get(0).mylist.get(0).Objname);
+		//System.out.println(HeapList.mylist.get(0).mylist.get(1).getLocationOnScreen());
+		System.out.println(heap.mylist.get(1).mylist.get(0).getLocationOnScreen());
+		System.out.println(heap.mylist.get(1).mylist.get(0).Objname);
+		//System.out.println(HeapList.mylist.get(1).mylist.get(1).getLocationOnScreen());
+		System.out.println(heap.mylist.get(2).getLocationOnScreen());
+		
+		
+		Point loc = heap.mylist.get(0).mylist.get(1).getLocation();
+		Window win = SwingUtilities.getWindowAncestor(heap.mylist.get(0).mylist.get(1));
+		Point wrPos = SwingUtilities.convertPoint(heap.mylist.get(0).mylist.get(1), loc, win);
+		System.out.println(wrPos);
+		
+		
+//		for(ObjList a: heap.mylist) {
+//			a.linesList.get(a.linesList.size()-1).x1 +=72;
+//			a.linesList.get(a.linesList.size()-1).x2 +=72;
+//		}
+		
 	}
 	
 
@@ -261,9 +332,12 @@ public class Visualizer extends JFrame{
 		
 		if (objCheck >0) {
 			super.paint(g);						//ensures default components are drawn first
-			for(Line i: linesList) {
-				drawArrow(g, i);
+			for(int index=0;index<heap.mylist.size();index++) {
+				for(Line i: heap.mylist.get(index).linesList) {
+					drawArrow(g, i);
+				}
 			}
+
 		} else {
 			super.paint(g);
 		}
