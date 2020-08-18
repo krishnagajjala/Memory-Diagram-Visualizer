@@ -23,7 +23,7 @@ public class Heap extends JPanel {
 		//determine whether instance variable, and if so how deep and place column accordingly
 		public Heap() {
 			GridLayout layout = new GridLayout(1,5);
-			layout.setHgap(10);
+			layout.setHgap(50);
 			this.setLayout(layout);
 		}
 		
@@ -32,6 +32,7 @@ public class Heap extends JPanel {
 		public void addObjList(ObjList given){
 			this.mylist.add(given);
 			this.add(given);
+			this.revalidate();
 			numObjs++;
 		}
 		

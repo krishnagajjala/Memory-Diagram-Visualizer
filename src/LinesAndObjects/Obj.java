@@ -63,9 +63,17 @@ public class Obj extends JPanel {
 		frame.setSize(max);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
-		o1.objTextVar.add(0, "testvar");
-		o1.objTextVal.add(0, "testval");
+		o1.objTextVar.add(0, "a");
+		o1.objTextVar.add(0, "d");
+		o1.objTextVal.add(0, "b");
+		o1.objTextVal.add(1, "c");
 		frame.setVisible(true);
+		
+		for(int i =0; i<=o1.objVars.countComponents();i++) {
+			int index = o1.objTextVar.lastIndexOf("a");
+			System.out.println(o1.objVars.getCellBounds(index, o1.objVars.countComponents()));
+		}
+		
 		
 	}
 	/**

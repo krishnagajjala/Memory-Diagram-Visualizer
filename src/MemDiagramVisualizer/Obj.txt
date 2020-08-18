@@ -26,6 +26,8 @@ public class Dog {
 public class Cat {
 	int weight = 9;
 	public String named = "kitty";
+	public String friend = "dood";
+	public String sdfd = "yes";
 	
 	public static void main(String[] args) {
 

@@ -30,6 +30,7 @@ public class ObjList extends JPanel{
 	public void addObj(Obj given){
 		this.mylist.add(0, given);
 		this.add(given, 0);
+		this.revalidate();
 		numObjs++;
 	}
 	
