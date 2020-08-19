@@ -1,6 +1,8 @@
 package MemDiagramVisualizer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -15,17 +17,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import LinesAndObjects.Heap;
-import LinesAndObjects.Line;
-import LinesAndObjects.Obj;
-import LinesAndObjects.ObjList;
+import javax.swing.ListCellRenderer;
+
+import SpecificObj.StringObj;
+import heapAndObjects.Heap;
+import heapAndObjects.Line;
+import heapAndObjects.Obj;
+import heapAndObjects.ObjList;
 import wordstream.WordStreamFromFile;
 
 @SuppressWarnings("serial")
@@ -43,6 +51,7 @@ public class Visualizer extends JFrame{
 	
 	static ArrayList<String> code = new ArrayList<String>();
 	static JButton varBtn = new JButton("add Variable");
+	static JButton nextBtn = new JButton("Next Line");
 	static DefaultListModel<String> textInput = new DefaultListModel<String>();
 	static JPanel visDisplay = new JPanel();
 	static int x1,x2,y1,y2, objCheck, currHList;
@@ -54,7 +63,8 @@ public class Visualizer extends JFrame{
     static HashMap<String, Obj> linesMap = new HashMap<>();
     static ArrayList<String> keyNames = new ArrayList<>();
     static ObjList allObj = new ObjList();
-	
+    static boolean cont = false;
+    static JList<String> codeLines = new JList<>(textInput);
 	
 		//visualizer interpreter methods//
 	
@@ -78,8 +88,8 @@ public class Visualizer extends JFrame{
 			}
 		}
 	}
-
-	public static void mainVisualizer(int index) {
+	
+	public void mainVisualizer(int index) {
 		int openBrac = 1;
 		int closeBrac = 0;
 		for(int i = index;openBrac!=closeBrac;i++) {
@@ -87,7 +97,18 @@ public class Visualizer extends JFrame{
 			if (code.get(i).contains(" = ")) {
 				addVar(code.get(i), stack);
 			}
-			
+			this.repaint();
+			codeLines.setSelectedIndex(i);
+			while(!cont) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+
 			// add more component checks
 			
 			
@@ -97,6 +118,7 @@ public class Visualizer extends JFrame{
 			if(code.get(i).contains("{") && i!=index) {
 				openBrac++;
 			}
+		cont = false;
 		}
 	}
 
@@ -166,7 +188,14 @@ public class Visualizer extends JFrame{
 		given.objTextVal.add(0, "************");
 		String keyName = given.Objname+","+varName;
 		keyName.trim();
-		Obj currObj = new Obj(className+" "+varName);
+		Obj currObj;
+		if(className.equals("String")) {
+			currObj = new StringObj(className+" "+varName);
+			currObj.objTextVar.add(0, name.substring(name.indexOf("=")+1,name.indexOf(";")));
+		} else {
+			currObj = new Obj(className+" "+varName);
+		}
+		
 		objCheck++;
 		
 		
@@ -211,6 +240,8 @@ public class Visualizer extends JFrame{
 			if (e.getSource() == varBtn) {
 				String test1= JOptionPane.showInputDialog("Please input mark for test 1: ");
 				addVar(test1, stack);
+			} else if (e.getSource() == nextBtn) {
+				cont = true;
 			}
 
 		}
@@ -230,12 +261,15 @@ public class Visualizer extends JFrame{
 		JPanel displayCode = new JPanel();
 		displayCode.setLayout(new BorderLayout());
 		
-		JList<String> codeLines = new JList<>(textInput);
+		
 		
 		JScrollPane codeView = new JScrollPane(codeLines);
 		codeView.setPreferredSize(new Dimension(400, 150));
 
-		displayCode.add(codeView);
+		displayCode.add(codeView, BorderLayout.CENTER);
+
+		nextBtn.addActionListener(actionListener);
+		displayCode.add(nextBtn, BorderLayout.SOUTH);
 		content.add(displayCode,BorderLayout.WEST);
 
 
@@ -286,18 +320,14 @@ public class Visualizer extends JFrame{
 		//controls.add(methodBtn, BorderLayout.NORTH );
 		//controls.add(varBtn, BorderLayout.CENTER);
 		//visDisplay.add(controls, BorderLayout.SOUTH);
+
 		
 		//call visualizer for main of driver class - always first main in file as of now
 		int main = textInput.indexOf("	public static void main(String[] args) {");
 		currHList = 0;
-		mainVisualizer(main);
-
-		
-		
+		frame.mainVisualizer(main);
 
 
-
-		
 	}
 	
 
@@ -305,13 +335,13 @@ public class Visualizer extends JFrame{
 
 	// overall paint method, needs to be changed to paintComponent method override later, but for now just overriding paint since extended JFrame
 	public void paint(Graphics g){
-		
-		if (objCheck >0) {
-			super.paint(g);						//ensures default components are drawn first
+		super.paint(g);						//ensures default components are drawn first
 
+		if (objCheck >0) {
+			linesList.clear();
 			for(String a: keyNames) {
 				Point end = linesMap.get(a).getLocationOnScreen();
-				System.out.println("end: "+linesMap.get(a).Objname);
+				//System.out.println("end: "+linesMap.get(a).Objname);
 				Point start = null;
 				for(Obj b: allObj.mylist) { 
 					if (b.Objname.equals(a.subSequence(0, a.indexOf(",")))) {
@@ -324,7 +354,7 @@ public class Visualizer extends JFrame{
 						start.y += 20;
 						start.y += b.objVars.getCellBounds(index, b.objVars.countComponents()).y+10;						
 						linesList.add(0, new Line(start.x,start.y,end.x,end.y));
-						System.out.println("start: "+b.Objname);
+						//System.out.println("start: "+b.Objname);
 						break;
 					}
 				}
@@ -332,9 +362,6 @@ public class Visualizer extends JFrame{
 			for(Line i: linesList) {
 				drawArrow(g, i);
 			}
-
-		} else {
-			super.paint(g);
 		}
 
 	}

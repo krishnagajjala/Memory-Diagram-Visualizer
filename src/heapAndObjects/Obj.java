@@ -1,4 +1,4 @@
-package LinesAndObjects;
+package heapAndObjects;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -76,91 +76,7 @@ public class Obj extends JPanel {
 		
 		
 	}
-	/**
-	public void addVar(String a) {
-		a = a.trim();
-		int nameStartIndex = a.indexOf(" ");
-		int nameEndIndex = a.indexOf("=");
-		String varName = a.substring(nameStartIndex+1, nameEndIndex);
-		varName.trim();
-		boolean newVar = true;
-		int oldIndex = -1;
-		for(int i = 0; i<objTextVar.getSize();i++) {
-			if (varName.equals(objTextVar.elementAt(i))) {
-				newVar = false;
-				oldIndex = i;
-			}
-		}
-		
-		if (newVar) {
-			for(Line b: linesList) {				// move line start points down when adding var when new var
-				b.y1 += 17;
-			}
-			if (a.contains(" new ") || a.contains("String")) {
-				addObj(a, varName);
-			} else {
-				addPrim(a, varName);
-			}
-		} else {
-			int valStartIndex = a.indexOf("=");
-			int valEndIndex = a.indexOf(";");
-			String valName = a.substring(valStartIndex+1, valEndIndex);
-			objTextVal.remove(oldIndex);
-			objTextVal.add(oldIndex, valName);
-			// change value of existing var	// change value of existing var// change value of existing var// change value of existing var// // change value of existing var// change value of existing var
-		}
 
-	}
-	
-	public void addPrim(String name, String varName) {
-		varName.trim();
-		objTextVar.add(0, varName);
-		int valStartIndex = name.indexOf("=");
-		int valEndIndex = name.indexOf(";");
-		String valName = name.substring(valStartIndex+1, valEndIndex);
-		//varList.put(varName, valName);
-		objTextVal.add(0, valName);
-	}
-	
-	public void addObj(String name, String varName) {
-		// check list of objLists if curr Index + 1 exists
-		// if no, then create new objList, add to heap, then add obj to that objList
-		
-		
-		name = name.trim();
-		int nameStartIndex = name.indexOf(" ");
-		String className = name.substring(0, nameStartIndex);
-		objTextVar.add(0, varName);
-		objTextVal.add(0, "************");
-		Obj currObj = new Obj(className+" "+varName);
-		heapList.addObj(currObj);	
-		
-		//arrow details
-		Point start = valLines.getLocationOnScreen();
-		x1= (int) start.getX()+97;
-		y1= (int) start.getY()+9;
-		Point end = heapList.mylist.get(0).getLocationOnScreen();
-		x2=(int) end.getX();
-		y2=(int) end.getY();
-		objCheck++;
-		for(Line a: linesList) {		//shift line end points down when adding obj
-			a.y2 += 200;
-		}
-		linesList.add(new Line(x1,y1,x2,y2));
-		
-		//class info
-		
-
-		int classIndex = 0;
-		for (int i=0;i<textInput.getSize();i++){
-			if(textInput.get(i).contains("class "+className)) {
-				classIndex = i;
-			}
-		}
-		objVisualizer(classIndex,currObj);
-		
-	}
-	**/
 	
 	// adds border around cells in scrollpane 
 	public static ListCellRenderer<? super String> getRenderer() {

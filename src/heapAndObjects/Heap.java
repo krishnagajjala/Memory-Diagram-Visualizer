@@ -1,4 +1,4 @@
-	package LinesAndObjects;
+	package heapAndObjects;
 
 	import java.awt.BorderLayout;
 import java.awt.Container;

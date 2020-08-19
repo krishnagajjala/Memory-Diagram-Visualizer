@@ -1,4 +1,4 @@
-package LinesAndObjects;
+package heapAndObjects;
 public class Line{
     public int x1; 
     public int y1;
