@@ -53,18 +53,16 @@ public class Visualizer extends JFrame{
 	static JButton varBtn = new JButton("add Variable");
 	static JButton nextBtn = new JButton("Next Line");
 	static DefaultListModel<String> textInput = new DefaultListModel<String>();
-	static JPanel visDisplay = new JPanel();
-	static int x1,x2,y1,y2, objCheck, currHList;
-	static LinkedList<Line> linesList = new LinkedList<Line>();
-	static Heap heap = new Heap();
-	static Obj stack = new Obj("Stack");
-	//static LinkedHashMap<String,String> varList = new LinkedHashMap<String, String>(); 		// need to change this to per method call(main as first method call)
-	//static LinkedHashMap<String,String>()[] variableList = new LinkedHashMap<>()[];			// cant use arrays for maps, bc the way generics work, type specificity isnt there so classexception error will occur
-    static HashMap<String, Obj> linesMap = new HashMap<>();
-    static ArrayList<String> keyNames = new ArrayList<>();
-    static ObjList allObj = new ObjList();
-    static boolean cont = false;
-    static JList<String> codeLines = new JList<>(textInput);
+    	static JPanel visDisplay = new JPanel();
+    	static int x1,x2,y1,y2, objCheck, currHList;
+    	static LinkedList<Line> linesList = new LinkedList<Line>();
+    	static Heap heap = new Heap();
+    	static Obj stack = new Obj("Stack");
+    	static HashMap<String, Obj> linesMap = new HashMap<>();
+    	static ArrayList<String> keyNames = new ArrayList<>();
+    	static ObjList allObj = new ObjList();
+    	static boolean cont = false;
+    	static JList<String> codeLines = new JList<>(textInput);
 	
 		//visualizer interpreter methods//
 	
@@ -164,7 +162,7 @@ public class Visualizer extends JFrame{
 			String valName = a.substring(valStartIndex+1, valEndIndex);
 			given.objTextVal.remove(oldIndex);
 			given.objTextVal.add(oldIndex, valName);
-			// change value of existing var	// change value of existing var// change value of existing var// change value of existing var// // change value of existing var// change value of existing var
+			// change value of existing var
 		}
 
 	}
@@ -310,17 +308,6 @@ public class Visualizer extends JFrame{
 		content.add(visDisplay,BorderLayout.CENTER);
 		frame.pack();
 		stack.loc = stack.getLocationOnScreen();
-		//control display
-		//JPanel controls = new JPanel();
-		
-		//varBtn.addActionListener(actionListener);
-		//JButton methodBtn = new JButton("add Method");
-		//methodBtn.addActionListener(actionListener);
-		//controls.setLayout(new BorderLayout());
-		//controls.add(methodBtn, BorderLayout.NORTH );
-		//controls.add(varBtn, BorderLayout.CENTER);
-		//visDisplay.add(controls, BorderLayout.SOUTH);
-
 		
 		//call visualizer for main of driver class - always first main in file as of now
 		int main = textInput.indexOf("	public static void main(String[] args) {");
@@ -422,44 +409,5 @@ public class Visualizer extends JFrame{
 		g.fill(arrowHead);
 		g.dispose();
 	}
-	
-	
-	// old way to draw line:
-//	for(Line b: heap.mylist.get(heap.mylist.size()!=currHList?currHList:currHList-1).linesList) {				// move line start points down when adding var when new var
-//	b.y1 += 15;
-//}
-	//currObj.loc.setLocation(currObj.getLocationOnScreen().getX(), currObj.getLocationOnScreen().getY());
-//	currObj.loc= currObj.getLocationOnScreen();
-//	System.out.println(currObj.loc);
-	//arrow details
-//	Point start = given.loc;
-//	x1= (int) start.getX()+420;				//use width and height of obj, add instance variable to obj class
-//	y1= (int) start.getY()-80;
-//	Point end = currObj.loc;
-//
-//	x2=(int) end.getX();
-//	y2=(int) end.getY();
-	
-//	for(Line a: heap.mylist.get(currHList -1).linesList) {		//shift line end points down when adding obj, heap.mylist.get(currHList -1).mylist.get(0)
-//			a.y2 += currObj.getHeight()+10;
-//			if(heap.mylist.size()>currHList) {
-//				for(Line b: heap.mylist.get(currHList).linesList) {
-//					b.y1 +=150;
-//				}
-//			}
-//	}
-//	heap.mylist.get(currHList -1).linesList.add(new Line(x1,y1,x2,y2));
-//	for(Line i: heap.mylist.get(0).linesList) {
-//	i.y1 += 90;
-//	i.x1 -= 278;
-	// draws arrow given Line that containes x1,y1,x2,y2 int values. Draws arrowhead at the end depending on direction calculated using coordinates
-//	for(int index=0;index<heap.mylist.size();index++) {
-//	for(Line i: heap.mylist.get(index).linesList) {
-//		drawArrow(g, i);
-//	}
-//}
-//}
-	
-	
 	
 }
